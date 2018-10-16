@@ -1,16 +1,10 @@
-From 281beca9614fa8b5c09527809a6810525faf2177 Mon Sep 17 00:00:00 2001
+From 39ca6facdc32413207c4c7bb3d7acb004d661550 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
 Date: Wed, 10 Oct 2018 20:47:04 +0200
 Subject: [PATCH] Fix build with fluidsynth version >= 2.0.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-
-Please not that the second change set at
-
-Upstream-Status: Backport [1]
-
-[1] https://github.com/csound/csound/pull/1046
 
 Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
 ---
@@ -48,6 +42,34 @@ index d6f4da0fd..aa2b9d4b2 100644
          }
      }
      return result;
+@@ -279,6 +292,7 @@ public:
+       toa(iFluidSynth, fluidSynth);
+       fluid_sfont_t *fluidSoundfont =
+         fluid_synth_get_sfont(fluidSynth, 0);
++#if FLUIDSYNTH_VERSION_MAJOR < 2
+       fluid_preset_t fluidPreset;
+       fluidSoundfont->iteration_start(fluidSoundfont);
+       OPARMS oparms;
+@@ -290,6 +304,19 @@ public:
+             ss << "Bank: " << fluidPreset.get_banknum(&fluidPreset) <<
+               " Preset: " << fluidPreset.get_num(&fluidPreset) <<
+                 " Name: " << fluidPreset.get_name(&fluidPreset);
++#else
++      fluid_preset_t *fluidPreset;
++      fluid_sfont_iteration_start(fluidSoundfont);
++      OPARMS oparms;
++      csound->GetOParms(csound, &oparms);
++      if (oparms.msglevel & 0x7)
++		while ((fluidPreset = fluid_sfont_iteration_next(fluidSoundfont))) {
++          {
++            std::stringstream ss;
++            ss << "Bank: " << fluid_preset_get_banknum(fluidPreset) <<
++              " Preset: " << fluid_preset_get_num(fluidPreset) <<
++                " Name: " << fluid_preset_get_name(fluidPreset);
++#endif
+           programs.push_back(ss.str());
+         }
+ 
 -- 
 2.14.4
 
