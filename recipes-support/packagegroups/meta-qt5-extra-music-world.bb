@@ -74,6 +74,7 @@ RDEPENDS_${PN} += " \
     lv2 \
     mixxx \
     muse \
+    musescore \
     nekobee \
     \
     \

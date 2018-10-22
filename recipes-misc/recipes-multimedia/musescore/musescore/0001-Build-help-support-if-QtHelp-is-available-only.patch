@@ -1,0 +1,146 @@
+From 64c9a0bf7ab190b88518b9cd7d4c27eae98a65b9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Sat, 20 Oct 2018 23:03:23 +0200
+Subject: [PATCH] Build help support if QtHelp is available only
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+qttools-native does not build help support because help support needs gui
+support which qtbase-native does not have.
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ all.h                    |  4 +++-
+ mscore/CMakeLists.txt    | 13 ++++++++++---
+ mscore/musescore.cpp     |  2 ++
+ mscore/musescore.h       |  4 ++++
+ mscore/pluginCreator.cpp |  2 ++
+ 5 files changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/all.h b/all.h
+index 18686f0aa..3b93962c4 100644
+--- a/all.h
++++ b/all.h
+@@ -158,9 +158,11 @@
+ #include <QQuickView>
+ #include <QQuickWidget>
+ 
++#ifdef QT_HELP_LIB
+ #include <QHelpEngine>
+-#include <QWidgetAction>
+ #include <QHelpIndexModel>
++#endif
++#include <QWidgetAction>
+ #include <QTextBrowser>
+ 
+ #include <QJsonDocument>
+diff --git a/mscore/CMakeLists.txt b/mscore/CMakeLists.txt
+index 50379c567..b38fdf7f2 100644
+--- a/mscore/CMakeLists.txt
++++ b/mscore/CMakeLists.txt
+@@ -214,6 +214,10 @@ else (APPLE)
+       set(COCOABRIDGE "")
+ endif (APPLE)
+ 
++if (Qt5Help_FOUND)
++      set(_helpfiles "help.cpp help.h helpBrowser.cpp")
++endif (Qt5Help_FOUND)
++
+ add_executable ( ${ExecutableName}
+       ${qrc_files}
+       ${ui_headers}
+@@ -259,7 +263,7 @@ add_executable ( ${ExecutableName}
+       inspector/inspectorGroupElement.cpp dragdrop.cpp inspector/inspectorImage.cpp
+       inspector/inspectorFret.cpp
+       inspector/inspectorText.cpp
+-      waveview.cpp helpBrowser.cpp inspector/inspectorLasso.cpp
++      waveview.cpp inspector/inspectorLasso.cpp
+       editelement.cpp inspector/inspectorVolta.cpp inspector/inspectorOttava.cpp enableplayforwidget.cpp
+       inspector/inspectorTrill.cpp
+       inspector/inspectorHairpin.cpp qmlplugin.cpp editlyrics.cpp
+@@ -288,7 +292,6 @@ add_executable ( ${ExecutableName}
+       textcursor.cpp continuouspanel.cpp accessibletoolbutton.cpp scoreaccessibility.cpp
+       startcenter.cpp scoreBrowser.cpp scorePreview.cpp scoreInfo.cpp
+       logindialog.cpp loginmanager.cpp uploadscoredialog.cpp breaksdialog.cpp searchComboBox.cpp
+-      help.cpp help.h
+       toolbuttonmenu.cpp
+       extension.cpp extension.h
+ 
+@@ -416,6 +419,10 @@ if (MINGW)
+ 
+       install(TARGETS mscore RUNTIME DESTINATION bin)
+ 
++if (Qt5Help_FOUND)
++      set(_helpdll "${CROSSQT}/bin/Qt5Core.dll")
++endif (Qt5Help_FOUND)
++
+       # Keep dependencies in alphabetical order. Changes made to this list
+       # might need to be made in "build/Linux+BSD/portable/copy-libs" too.
+       install(FILES
+@@ -434,7 +441,7 @@ if (MINGW)
+             ${CROSSQT}/bin/icuin53.dll
+             ${CROSSQT}/bin/icuuc53.dll
+             ${CROSSQT}/bin/Qt5CLucene.dll
+-            ${CROSSQT}/bin/Qt5Core.dll
++            ${_helpdll}
+             ${CROSSQT}/bin/Qt5Gui.dll
+             ${CROSSQT}/bin/Qt5Help.dll
+             ${CROSSQT}/bin/Qt5Multimedia.dll
+diff --git a/mscore/musescore.cpp b/mscore/musescore.cpp
+index feb3fefdc..6d02db527 100644
+--- a/mscore/musescore.cpp
++++ b/mscore/musescore.cpp
+@@ -76,7 +76,9 @@
+ #include "pluginCreator.h"
+ #include "pluginManager.h"
+ #endif
++#ifdef QT_HELP_LIB
+ #include "helpBrowser.h"
++#endif
+ #include "drumtools.h"
+ #include "editstafftype.h"
+ #include "texttools.h"
+diff --git a/mscore/musescore.h b/mscore/musescore.h
+index 1a1c6fd6e..767240a57 100644
+--- a/mscore/musescore.h
++++ b/mscore/musescore.h
+@@ -347,7 +347,9 @@ class MuseScore : public QMainWindow, public MuseScoreCore {
+       QNetworkAccessManager* _networkManager { 0 };
+       QAction* lastCmd                       { 0 };
+       const Shortcut* lastShortcut           { 0 };
++#ifdef QT_HELP_LIB
+       QHelpEngine* _helpEngine               { 0 };
++#endif
+       int globalX, globalY;       // current mouse position
+ 
+       QAction* countInAction;
+@@ -692,7 +694,9 @@ class MuseScore : public QMainWindow, public MuseScoreCore {
+       void showLoginDialog();
+       void showUploadScoreDialog();
+       LoginManager* loginManager()     { return _loginManager; }
++#ifdef QT_HELP_LIB
+       QHelpEngine*  helpEngine() const { return _helpEngine;   }
++#endif
+ 
+       void updateInspector();
+       void updateNewWizard();
+diff --git a/mscore/pluginCreator.cpp b/mscore/pluginCreator.cpp
+index 63462abe5..0060ece22 100644
+--- a/mscore/pluginCreator.cpp
++++ b/mscore/pluginCreator.cpp
+@@ -15,7 +15,9 @@
+ #include "musescore.h"
+ #include "qmlplugin.h"
+ #include "icons.h"
++#ifdef QT_HELP_LIB
+ #include "helpBrowser.h"
++#endif
+ #include "preferences.h"
+ #include "libmscore/score.h"
+ 
+-- 
+2.14.4
+

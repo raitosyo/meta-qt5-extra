@@ -1,0 +1,43 @@
+From 2193c660926dab3f8234471ffb8b2741a244bd90 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Sun, 21 Oct 2018 01:45:03 +0200
+Subject: [PATCH] Find native genManual
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ CMakeLists.txt        | 2 +-
+ manual/CMakeLists.txt | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 08f8272a5..bb82b067c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -740,7 +740,7 @@ add_custom_target(lrelease
+ ##
+ 
+ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/plugins
+-   COMMAND genManual ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}
++   COMMAND museScoreGenManual ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}
+    DEPENDS genManual
+    )
+ 
+diff --git a/manual/CMakeLists.txt b/manual/CMakeLists.txt
+index cf6edcaed..cba99a6e3 100644
+--- a/manual/CMakeLists.txt
++++ b/manual/CMakeLists.txt
+@@ -55,5 +55,5 @@ add_custom_target(pluginDocumentation
+ 
+ add_custom_command(TARGET pluginDocumentation
+       POST_BUILD
+-      COMMAND ${PROJECT_BINARY_DIR}/manual/${CMAKE_CFG_INTDIR}/genManual ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/share/manual
++      COMMAND museScoreGenManual ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/share/manual
+       )
+-- 
+2.14.4
+

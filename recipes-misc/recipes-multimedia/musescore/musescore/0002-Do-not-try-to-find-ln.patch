@@ -1,0 +1,32 @@
+From 6093658679243f0a8fc0598e821a641373a2039f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Sat, 20 Oct 2018 23:35:23 +0200
+Subject: [PATCH] Do not try to find ln
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ CMakeLists.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 08f8272a5..2fc5ee3d7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -606,7 +606,8 @@ if (NOT MINGW AND NOT APPLE)
+     # install man pages in either compressed or uncompressed form
+     install( FILES ${MAN_BUILD} DESTINATION share/man/man1 COMPONENT doc)
+     # create symlink alias for man pages so `man musescore` = `man mscore`
+-    find_program( LN_EXECUTABLE ln DOC "A tool for creating symbolic link aliases (optional)." )
++    #find_program( LN_EXECUTABLE ln DOC "A tool for creating symbolic link aliases (optional)." )
++    set(LN_EXECUTABLE "ln")
+     if (LN_EXECUTABLE)
+         message(STATUS "Found ln. Symlink aliases will be created for MuseScore executable and the man pages.")
+         add_custom_command(
+-- 
+2.14.4
+

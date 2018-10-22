@@ -1,0 +1,96 @@
+From b1534aef7345401c7a4b8fec578706b78b8361c9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Sun, 21 Oct 2018 00:09:32 +0200
+Subject: [PATCH] build manual only alignments
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Inappropriate [OE specific]
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ CMakeLists.txt | 29 ++++++++++++-----------------
+ genManual.cpp  |  6 ++++++
+ 2 files changed, 18 insertions(+), 17 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cf6edcaed..0b30ff1a3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -10,10 +10,17 @@
+ #  as published by the Free Software Foundation and appearing in
+ #  the file LICENSE.GPL
+ #=============================================================================
++cmake_minimum_required(VERSION 3.1.0)
++
++project(genmanual)
++
++set(CMAKE_INCLUDE_CURRENT_DIR ON)
++set(CMAKE_AUTOMOC ON)
++
++find_package(Qt5Core CONFIG REQUIRED)
+ 
+ include_directories(
+-      ${PROJECT_BINARY_DIR}
+-      ${PROJECT_SOURCE_DIR}
++      ${Qt5Core_INCLUDE_DIRS}
+       )
+ 
+ if (APPLE)
+@@ -29,31 +36,19 @@ add_executable(
+       )
+ target_link_libraries(
+       genManual
+-      ${QT_LIBRARIES}
++      ${Qt5Core_LIBRARIES}
+       )
+ 
+ if(APPLE)
+ set_target_properties (
+       genManual
+       PROPERTIES
+-      COMPILE_FLAGS "-include all.h -D TESTROOT=\\\\\"${PROJECT_SOURCE_DIR}\\\\\" -g -Wall -Wextra"
++      COMPILE_FLAGS "-D TESTROOT=\\\\\"${PROJECT_SOURCE_DIR}\\\\\" -g -Wall -Wextra"
+       )
+ else(APPLE)
+ set_target_properties (
+       genManual
+       PROPERTIES
+-      COMPILE_FLAGS "-include all.h -D TESTROOT=\\\"${PROJECT_SOURCE_DIR}\\\" -g -Wall -Wextra"
++      COMPILE_FLAGS "-D TESTROOT=\\\"${PROJECT_SOURCE_DIR}\\\" -g -Wall -Wextra"
+       )
+ endif(APPLE)
+-
+-ADD_DEPENDENCIES(genManual mops1)
+-
+-add_custom_target(pluginDocumentation
+-      ALL
+-      DEPENDS genManual
+-      )
+-
+-add_custom_command(TARGET pluginDocumentation
+-      POST_BUILD
+-      COMMAND ${PROJECT_BINARY_DIR}/manual/${CMAKE_CFG_INTDIR}/genManual ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/share/manual
+-      )
+diff --git a/genManual.cpp b/genManual.cpp
+index 3a5289446..525e9a414 100644
+--- a/genManual.cpp
++++ b/genManual.cpp
+@@ -11,7 +11,13 @@
+ //=============================================================================
+ 
+ #include <stdio.h>
++#include <unistd.h>
+ #include <QString>
++#include <QStringList>
++#include <QList>
++#include <QFile>
++#include <QRegExp>
++#include <QDir>
+ 
+ QString srcPath;
+ QString dstPath;
+-- 
+2.14.4
+
